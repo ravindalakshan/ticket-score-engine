@@ -1,4 +1,4 @@
-module github.com/ravindalakshan/ticket-score-engine
+module ticket-score-engine
 
 go 1.24.3
 
