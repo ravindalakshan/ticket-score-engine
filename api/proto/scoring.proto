@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package scoring;
+
+option go_package = "ticket-score-engine/generated/scoringpb";
+
+// Request to get scores between two dates
+message ScoreRequest {
+  string start_date = 1; // Format: "YYYY-MM-DD"
+  string end_date = 2;   // Format: "YYYY-MM-DD"
+}
+
+// Single category score result
+message CategoryScore {
+  string category_name = 1;
+  string date = 2;
+  float score = 3;
+  int32 rating_count = 4;
+}
+
+// Response with multiple category scores
+message ScoreResponse {
+  repeated CategoryScore scores = 1;
+  bool is_weekly = 2; // Indicates if aggregation is weekly
+}
+
+// gRPC service definition
+service ScoringService {
+  rpc GetCategoryScores (ScoreRequest) returns (ScoreResponse);
+}

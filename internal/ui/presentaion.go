@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"ticket-score-engine/internal"
+	"ticket-score-engine/internal/scoring"
 )
 
 // CategoryScoreSummary represents aggregated scores for UI presentation
@@ -16,7 +16,7 @@ type CategoryScoreSummary struct {
 }
 
 // TransformForUI converts raw scores to UI-friendly format
-func TransformForUI(scores []internal.CategoryScore, weekly bool) []CategoryScoreSummary {
+func TransformForUI(scores []scoring.CategoryScore, weekly bool) []CategoryScoreSummary {
 	// Group by category
 	categoryMap := make(map[string]*CategoryScoreSummary)
 	allDates := make(map[string]bool)
