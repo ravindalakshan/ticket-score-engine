@@ -9,6 +9,7 @@ package scoringpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	_ "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -196,11 +197,109 @@ func (x *ScoreResponse) GetIsWeekly() bool {
 	return false
 }
 
+// Per-ticket category score entry
+type TicketScore struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TicketId       int32                  `protobuf:"varint,1,opt,name=ticket_id,json=ticketId,proto3" json:"ticket_id,omitempty"`
+	CategoryScores map[string]float32     `protobuf:"bytes,2,rep,name=category_scores,json=categoryScores,proto3" json:"category_scores,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"fixed32,2,opt,name=value"` // Category name -> percentage score
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *TicketScore) Reset() {
+	*x = TicketScore{}
+	mi := &file_scoring_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TicketScore) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TicketScore) ProtoMessage() {}
+
+func (x *TicketScore) ProtoReflect() protoreflect.Message {
+	mi := &file_scoring_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TicketScore.ProtoReflect.Descriptor instead.
+func (*TicketScore) Descriptor() ([]byte, []int) {
+	return file_scoring_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TicketScore) GetTicketId() int32 {
+	if x != nil {
+		return x.TicketId
+	}
+	return 0
+}
+
+func (x *TicketScore) GetCategoryScores() map[string]float32 {
+	if x != nil {
+		return x.CategoryScores
+	}
+	return nil
+}
+
+// Response containing ticket-level category scores
+type TicketScoreResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TicketScores  []*TicketScore         `protobuf:"bytes,1,rep,name=ticket_scores,json=ticketScores,proto3" json:"ticket_scores,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TicketScoreResponse) Reset() {
+	*x = TicketScoreResponse{}
+	mi := &file_scoring_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TicketScoreResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TicketScoreResponse) ProtoMessage() {}
+
+func (x *TicketScoreResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_scoring_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TicketScoreResponse.ProtoReflect.Descriptor instead.
+func (*TicketScoreResponse) Descriptor() ([]byte, []int) {
+	return file_scoring_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *TicketScoreResponse) GetTicketScores() []*TicketScore {
+	if x != nil {
+		return x.TicketScores
+	}
+	return nil
+}
+
 var File_scoring_proto protoreflect.FileDescriptor
 
 const file_scoring_proto_rawDesc = "" +
 	"\n" +
-	"\rscoring.proto\x12\ascoring\"H\n" +
+	"\rscoring.proto\x12\ascoring\x1a\x1bgoogle/protobuf/empty.proto\"H\n" +
 	"\fScoreRequest\x12\x1d\n" +
 	"\n" +
 	"start_date\x18\x01 \x01(\tR\tstartDate\x12\x19\n" +
@@ -212,9 +311,18 @@ const file_scoring_proto_rawDesc = "" +
 	"\frating_count\x18\x04 \x01(\x05R\vratingCount\"\\\n" +
 	"\rScoreResponse\x12.\n" +
 	"\x06scores\x18\x01 \x03(\v2\x16.scoring.CategoryScoreR\x06scores\x12\x1b\n" +
-	"\tis_weekly\x18\x02 \x01(\bR\bisWeekly2T\n" +
+	"\tis_weekly\x18\x02 \x01(\bR\bisWeekly\"\xc0\x01\n" +
+	"\vTicketScore\x12\x1b\n" +
+	"\tticket_id\x18\x01 \x01(\x05R\bticketId\x12Q\n" +
+	"\x0fcategory_scores\x18\x02 \x03(\v2(.scoring.TicketScore.CategoryScoresEntryR\x0ecategoryScores\x1aA\n" +
+	"\x13CategoryScoresEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x02R\x05value:\x028\x01\"P\n" +
+	"\x13TicketScoreResponse\x129\n" +
+	"\rticket_scores\x18\x01 \x03(\v2\x14.scoring.TicketScoreR\fticketScores2\x9c\x01\n" +
 	"\x0eScoringService\x12B\n" +
-	"\x11GetCategoryScores\x12\x15.scoring.ScoreRequest\x1a\x16.scoring.ScoreResponseB)Z'ticket-score-engine/generated/scoringpbb\x06proto3"
+	"\x11GetCategoryScores\x12\x15.scoring.ScoreRequest\x1a\x16.scoring.ScoreResponse\x12F\n" +
+	"\x0fGetTicketScores\x12\x15.scoring.ScoreRequest\x1a\x1c.scoring.TicketScoreResponseB)Z'ticket-score-engine/generated/scoringpbb\x06proto3"
 
 var (
 	file_scoring_proto_rawDescOnce sync.Once
@@ -228,21 +336,28 @@ func file_scoring_proto_rawDescGZIP() []byte {
 	return file_scoring_proto_rawDescData
 }
 
-var file_scoring_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_scoring_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_scoring_proto_goTypes = []any{
-	(*ScoreRequest)(nil),  // 0: scoring.ScoreRequest
-	(*CategoryScore)(nil), // 1: scoring.CategoryScore
-	(*ScoreResponse)(nil), // 2: scoring.ScoreResponse
+	(*ScoreRequest)(nil),        // 0: scoring.ScoreRequest
+	(*CategoryScore)(nil),       // 1: scoring.CategoryScore
+	(*ScoreResponse)(nil),       // 2: scoring.ScoreResponse
+	(*TicketScore)(nil),         // 3: scoring.TicketScore
+	(*TicketScoreResponse)(nil), // 4: scoring.TicketScoreResponse
+	nil,                         // 5: scoring.TicketScore.CategoryScoresEntry
 }
 var file_scoring_proto_depIdxs = []int32{
 	1, // 0: scoring.ScoreResponse.scores:type_name -> scoring.CategoryScore
-	0, // 1: scoring.ScoringService.GetCategoryScores:input_type -> scoring.ScoreRequest
-	2, // 2: scoring.ScoringService.GetCategoryScores:output_type -> scoring.ScoreResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 1: scoring.TicketScore.category_scores:type_name -> scoring.TicketScore.CategoryScoresEntry
+	3, // 2: scoring.TicketScoreResponse.ticket_scores:type_name -> scoring.TicketScore
+	0, // 3: scoring.ScoringService.GetCategoryScores:input_type -> scoring.ScoreRequest
+	0, // 4: scoring.ScoringService.GetTicketScores:input_type -> scoring.ScoreRequest
+	2, // 5: scoring.ScoringService.GetCategoryScores:output_type -> scoring.ScoreResponse
+	4, // 6: scoring.ScoringService.GetTicketScores:output_type -> scoring.TicketScoreResponse
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_scoring_proto_init() }
@@ -256,7 +371,7 @@ func file_scoring_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_scoring_proto_rawDesc), len(file_scoring_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

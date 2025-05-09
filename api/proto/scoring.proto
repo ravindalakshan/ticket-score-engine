@@ -4,11 +4,15 @@ package scoring;
 
 option go_package = "ticket-score-engine/generated/scoringpb";
 
+import "google/protobuf/empty.proto";
+
 // Request to get scores between two dates
 message ScoreRequest {
   string start_date = 1; // Format: "YYYY-MM-DD"
   string end_date = 2;   // Format: "YYYY-MM-DD"
 }
+
+// ===== Category Score =====
 
 // Single category score result
 message CategoryScore {
@@ -24,7 +28,22 @@ message ScoreResponse {
   bool is_weekly = 2; // Indicates if aggregation is weekly
 }
 
-// gRPC service definition
+// ===== Ticket Score =====
+
+// Per-ticket category score entry
+message TicketScore {
+  int32 ticket_id = 1;
+  map<string, float> category_scores = 2; // Category name -> percentage score
+}
+
+// Response containing ticket-level category scores
+message TicketScoreResponse {
+  repeated TicketScore ticket_scores = 1;
+}
+
+// ===== gRPC Service =====
+
 service ScoringService {
   rpc GetCategoryScores (ScoreRequest) returns (ScoreResponse);
+  rpc GetTicketScores (ScoreRequest) returns (TicketScoreResponse);
 }

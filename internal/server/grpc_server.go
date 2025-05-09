@@ -45,3 +45,42 @@ func (s *ticketScoreServer) GetCategoryScores(ctx context.Context, req *pb.Score
 
 	return &resp, nil
 }
+
+func (s *ticketScoreServer) GetTicketScores(ctx context.Context, req *pb.ScoreRequest) (*pb.TicketScoreResponse, error) {
+	start, err := time.Parse("2006-01-02", req.StartDate)
+	if err != nil {
+		return nil, err
+	}
+	end, err := time.Parse("2006-01-02", req.EndDate)
+	if err != nil {
+		return nil, err
+	}
+
+	ticketCategoryScores, err := scoring.GetScoresByTicket(s.db, start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	// Group by TicketID
+	ticketMap := make(map[int64]map[string]float32)
+	for _, score := range ticketCategoryScores {
+		ticketID := int64(score.TicketID)
+		if _, exists := ticketMap[ticketID]; !exists {
+			ticketMap[ticketID] = make(map[string]float32)
+		}
+		ticketMap[ticketID][score.CategoryName] = float32(score.Score)
+	}
+
+	// Build gRPC response
+	var grpcTicketScores []*pb.TicketScore
+	for ticketID, categoryScores := range ticketMap {
+		grpcTicketScores = append(grpcTicketScores, &pb.TicketScore{
+			TicketId:       int32(ticketID),
+			CategoryScores: categoryScores,
+		})
+	}
+
+	return &pb.TicketScoreResponse{
+		TicketScores: grpcTicketScores,
+	}, nil
+}

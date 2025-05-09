@@ -20,15 +20,15 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ScoringService_GetCategoryScores_FullMethodName = "/scoring.ScoringService/GetCategoryScores"
+	ScoringService_GetTicketScores_FullMethodName   = "/scoring.ScoringService/GetTicketScores"
 )
 
 // ScoringServiceClient is the client API for ScoringService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// gRPC service definition
 type ScoringServiceClient interface {
 	GetCategoryScores(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*ScoreResponse, error)
+	GetTicketScores(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*TicketScoreResponse, error)
 }
 
 type scoringServiceClient struct {
@@ -49,13 +49,22 @@ func (c *scoringServiceClient) GetCategoryScores(ctx context.Context, in *ScoreR
 	return out, nil
 }
 
+func (c *scoringServiceClient) GetTicketScores(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*TicketScoreResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TicketScoreResponse)
+	err := c.cc.Invoke(ctx, ScoringService_GetTicketScores_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ScoringServiceServer is the server API for ScoringService service.
 // All implementations must embed UnimplementedScoringServiceServer
 // for forward compatibility.
-//
-// gRPC service definition
 type ScoringServiceServer interface {
 	GetCategoryScores(context.Context, *ScoreRequest) (*ScoreResponse, error)
+	GetTicketScores(context.Context, *ScoreRequest) (*TicketScoreResponse, error)
 	mustEmbedUnimplementedScoringServiceServer()
 }
 
@@ -68,6 +77,9 @@ type UnimplementedScoringServiceServer struct{}
 
 func (UnimplementedScoringServiceServer) GetCategoryScores(context.Context, *ScoreRequest) (*ScoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCategoryScores not implemented")
+}
+func (UnimplementedScoringServiceServer) GetTicketScores(context.Context, *ScoreRequest) (*TicketScoreResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTicketScores not implemented")
 }
 func (UnimplementedScoringServiceServer) mustEmbedUnimplementedScoringServiceServer() {}
 func (UnimplementedScoringServiceServer) testEmbeddedByValue()                        {}
@@ -108,6 +120,24 @@ func _ScoringService_GetCategoryScores_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ScoringService_GetTicketScores_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ScoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).GetTicketScores(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_GetTicketScores_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).GetTicketScores(ctx, req.(*ScoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ScoringService_ServiceDesc is the grpc.ServiceDesc for ScoringService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -118,6 +148,10 @@ var ScoringService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCategoryScores",
 			Handler:    _ScoringService_GetCategoryScores_Handler,
+		},
+		{
+			MethodName: "GetTicketScores",
+			Handler:    _ScoringService_GetTicketScores_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
