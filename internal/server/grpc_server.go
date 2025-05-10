@@ -7,16 +7,33 @@ import (
 	"time"
 
 	pb "ticket-score-engine/generated"
+	"ticket-score-engine/internal/repository"
 	"ticket-score-engine/internal/scoring"
 )
 
 type ticketScoreServer struct {
 	pb.UnimplementedScoringServiceServer
-	db *sql.DB
+	categoryScorer *scoring.CategoryScorer
+	ticketScorer   *scoring.TicketScorer
+	overallScorer  *scoring.OverallScorer
+	db             *sql.DB
 }
 
 func NewTicketScoreServer(db *sql.DB) pb.ScoringServiceServer {
-	return &ticketScoreServer{db: db}
+	repo := repository.NewCategoryRepository(db)
+	scorer := scoring.NewCategoryScorer(repo)
+
+	ticketRepo := repository.NewTicketRepository(db)
+	ticketScorer := scoring.NewTicketScorer(ticketRepo)
+
+	overallRepo := repository.NewOverallRepository(db)
+	overallScorer := scoring.NewOverallScorer(overallRepo)
+
+	return &ticketScoreServer{
+		categoryScorer: scorer,
+		ticketScorer:   ticketScorer,
+		overallScorer:  overallScorer,
+	}
 }
 
 func (s *ticketScoreServer) GetCategoryScores(ctx context.Context, req *pb.ScoreRequest) (*pb.ScoreResponse, error) {
@@ -29,7 +46,7 @@ func (s *ticketScoreServer) GetCategoryScores(ctx context.Context, req *pb.Score
 		return nil, err
 	}
 
-	scores, err := scoring.GetCategoryScores(s.db, start, end)
+	scores, err := s.categoryScorer.GetCategoryScores(ctx, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +74,7 @@ func (s *ticketScoreServer) GetTicketScores(ctx context.Context, req *pb.ScoreRe
 		return nil, err
 	}
 
-	ticketCategoryScores, err := scoring.GetScoresByTicket(s.db, start, end)
+	ticketCategoryScores, err := s.ticketScorer.GetTicketScores(ctx, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +115,7 @@ func (s *ticketScoreServer) GetOverallScore(ctx context.Context, req *pb.ScoreRe
 		return nil, fmt.Errorf("invalid end date: %w", err)
 	}
 
-	result, err := scoring.GetOverallScore(s.db, start, end)
+	result, err := s.overallScorer.GetOverallScore(ctx, start, end)
 	if err != nil {
 		return nil, fmt.Errorf("failed to calculate overall score: %w", err)
 	}
@@ -131,7 +148,7 @@ func (s *ticketScoreServer) GetPeriodComparison(ctx context.Context, req *pb.Per
 	}
 
 	// Get comparison results
-	result, err := scoring.GetPeriodComparison(s.db, currentStart, currentEnd, previousStart, previousEnd)
+	result, err := s.overallScorer.GetPeriodComparison(ctx, currentStart, currentEnd, previousStart, previousEnd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to compare periods: %w", err)
 	}
