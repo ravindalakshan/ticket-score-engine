@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ScoringService_GetCategoryScores_FullMethodName = "/scoring.ScoringService/GetCategoryScores"
-	ScoringService_GetTicketScores_FullMethodName   = "/scoring.ScoringService/GetTicketScores"
+	ScoringService_GetCategoryScores_FullMethodName   = "/scoring.ScoringService/GetCategoryScores"
+	ScoringService_GetTicketScores_FullMethodName     = "/scoring.ScoringService/GetTicketScores"
+	ScoringService_GetOverallScore_FullMethodName     = "/scoring.ScoringService/GetOverallScore"
+	ScoringService_GetPeriodComparison_FullMethodName = "/scoring.ScoringService/GetPeriodComparison"
 )
 
 // ScoringServiceClient is the client API for ScoringService service.
@@ -29,6 +31,8 @@ const (
 type ScoringServiceClient interface {
 	GetCategoryScores(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*ScoreResponse, error)
 	GetTicketScores(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*TicketScoreResponse, error)
+	GetOverallScore(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*OverallScoreResponse, error)
+	GetPeriodComparison(ctx context.Context, in *PeriodComparisonRequest, opts ...grpc.CallOption) (*PeriodComparisonResponse, error)
 }
 
 type scoringServiceClient struct {
@@ -59,12 +63,34 @@ func (c *scoringServiceClient) GetTicketScores(ctx context.Context, in *ScoreReq
 	return out, nil
 }
 
+func (c *scoringServiceClient) GetOverallScore(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*OverallScoreResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OverallScoreResponse)
+	err := c.cc.Invoke(ctx, ScoringService_GetOverallScore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *scoringServiceClient) GetPeriodComparison(ctx context.Context, in *PeriodComparisonRequest, opts ...grpc.CallOption) (*PeriodComparisonResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PeriodComparisonResponse)
+	err := c.cc.Invoke(ctx, ScoringService_GetPeriodComparison_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ScoringServiceServer is the server API for ScoringService service.
 // All implementations must embed UnimplementedScoringServiceServer
 // for forward compatibility.
 type ScoringServiceServer interface {
 	GetCategoryScores(context.Context, *ScoreRequest) (*ScoreResponse, error)
 	GetTicketScores(context.Context, *ScoreRequest) (*TicketScoreResponse, error)
+	GetOverallScore(context.Context, *ScoreRequest) (*OverallScoreResponse, error)
+	GetPeriodComparison(context.Context, *PeriodComparisonRequest) (*PeriodComparisonResponse, error)
 	mustEmbedUnimplementedScoringServiceServer()
 }
 
@@ -80,6 +106,12 @@ func (UnimplementedScoringServiceServer) GetCategoryScores(context.Context, *Sco
 }
 func (UnimplementedScoringServiceServer) GetTicketScores(context.Context, *ScoreRequest) (*TicketScoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTicketScores not implemented")
+}
+func (UnimplementedScoringServiceServer) GetOverallScore(context.Context, *ScoreRequest) (*OverallScoreResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOverallScore not implemented")
+}
+func (UnimplementedScoringServiceServer) GetPeriodComparison(context.Context, *PeriodComparisonRequest) (*PeriodComparisonResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPeriodComparison not implemented")
 }
 func (UnimplementedScoringServiceServer) mustEmbedUnimplementedScoringServiceServer() {}
 func (UnimplementedScoringServiceServer) testEmbeddedByValue()                        {}
@@ -138,6 +170,42 @@ func _ScoringService_GetTicketScores_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ScoringService_GetOverallScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ScoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).GetOverallScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_GetOverallScore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).GetOverallScore(ctx, req.(*ScoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ScoringService_GetPeriodComparison_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PeriodComparisonRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).GetPeriodComparison(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_GetPeriodComparison_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).GetPeriodComparison(ctx, req.(*PeriodComparisonRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ScoringService_ServiceDesc is the grpc.ServiceDesc for ScoringService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +220,14 @@ var ScoringService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTicketScores",
 			Handler:    _ScoringService_GetTicketScores_Handler,
+		},
+		{
+			MethodName: "GetOverallScore",
+			Handler:    _ScoringService_GetOverallScore_Handler,
+		},
+		{
+			MethodName: "GetPeriodComparison",
+			Handler:    _ScoringService_GetPeriodComparison_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -4,13 +4,18 @@ package scoring;
 
 option go_package = "ticket-score-engine/generated/scoringpb";
 
-import "google/protobuf/empty.proto";
-
 // Request to get scores between two dates
 message ScoreRequest {
   string start_date = 1; // Format: "YYYY-MM-DD"
   string end_date = 2;   // Format: "YYYY-MM-DD"
 }
+
+// Request for period comparison
+message PeriodComparisonRequest {
+  ScoreRequest current_period = 1;
+  ScoreRequest previous_period = 2;
+}
+
 
 // ===== Category Score =====
 
@@ -41,9 +46,28 @@ message TicketScoreResponse {
   repeated TicketScore ticket_scores = 1;
 }
 
+// ===== Overall Score =====
+
+message OverallScoreResponse {
+  float score = 1;         // Overall score percentage (0-100)
+  int32 rating_count = 2;  // Total number of ratings
+}
+
+// ===== Period Comparison =====
+
+message PeriodComparisonResponse {
+  float percentage_change = 1;  // Percentage change between periods
+  float current_score = 2;      // Score for current period
+  float previous_score = 3;     // Score for previous period
+  int32 current_count = 4;      // Rating count for current period
+  int32 previous_count = 5;     // Rating count for previous period
+}
+
 // ===== gRPC Service =====
 
 service ScoringService {
   rpc GetCategoryScores (ScoreRequest) returns (ScoreResponse);
   rpc GetTicketScores (ScoreRequest) returns (TicketScoreResponse);
+  rpc GetOverallScore (ScoreRequest) returns (OverallScoreResponse);
+  rpc GetPeriodComparison (PeriodComparisonRequest) returns (PeriodComparisonResponse);
 }
