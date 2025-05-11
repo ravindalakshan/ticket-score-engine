@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticket-score-engine
+  labels:
+    app: ticket-score-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticket-score-engine
+  template:
+    metadata:
+      labels:
+        app: ticket-score-engine
+    spec:
+      containers:
+        - name: ticket-score-engine
+          image: <registry>/ticket-score-engine:latest
+          ports:
+            - containerPort: 50051 # Assuming gRPC on this port
+          env:
+            - name: DB_TYPE
+              value: "mysql"
+            - name: DB_HOST
+              value: "ticket-mysql"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: "ticket_db"
