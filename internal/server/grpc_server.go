@@ -89,7 +89,6 @@ func (s *ticketScoreServer) GetTicketScores(ctx context.Context, req *pb.ScoreRe
 		ticketMap[ticketID][score.CategoryName] = float32(score.Score)
 	}
 
-	// Build gRPC response
 	var grpcTicketScores []*pb.TicketScore
 	for ticketID, categoryScores := range ticketMap {
 		grpcTicketScores = append(grpcTicketScores, &pb.TicketScore{
@@ -102,8 +101,6 @@ func (s *ticketScoreServer) GetTicketScores(ctx context.Context, req *pb.ScoreRe
 		TicketScores: grpcTicketScores,
 	}, nil
 }
-
-//
 
 func (s *ticketScoreServer) GetOverallScore(ctx context.Context, req *pb.ScoreRequest) (*pb.OverallScoreResponse, error) {
 	start, err := time.Parse("2006-01-02", req.StartDate)
@@ -147,7 +144,6 @@ func (s *ticketScoreServer) GetPeriodComparison(ctx context.Context, req *pb.Per
 		return nil, fmt.Errorf("invalid previous period end date: %w", err)
 	}
 
-	// Get comparison results
 	result, err := s.overallScorer.GetPeriodComparison(ctx, currentStart, currentEnd, previousStart, previousEnd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to compare periods: %w", err)

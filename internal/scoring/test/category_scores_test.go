@@ -29,8 +29,8 @@ func TestGetCategoryScores(t *testing.T) {
 	end := time.Now()
 
 	expected := []domain.CategoryScore{
-		{CategoryName: "Efficiency", Date: "2025-05-01", RatingCount: 10, Score: 87.5},
-		{CategoryName: "Communication", Date: "2025-05-01", RatingCount: 12, Score: 90.0},
+		{CategoryName: "GDPR", Date: "2025-05-01", RatingCount: 10, Score: 87.5},
+		{CategoryName: "Grammer", Date: "2025-05-01", RatingCount: 12, Score: 90.0},
 	}
 
 	mockRepo.On("GetCategoryScores", mock.Anything, start, end).Return(expected, nil)
