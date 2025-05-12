@@ -24,8 +24,8 @@ func TestGetScoresByTicket(t *testing.T) {
 	rows := sqlmock.NewRows([]string{
 		"ticket_id", "category", "weighted_score", "total_weight",
 	}).
-		AddRow(1, "UX", 40.0, 50.0).         // 80%
-		AddRow(2, "Performance", 25.0, 50.0) // 50%
+		AddRow(1, "Grammer", 40.0, 50.0). // 80%
+		AddRow(2, "GDPR", 25.0, 50.0)     // 50%
 
 	mock.ExpectQuery("SELECT (.+) FROM ratings r").
 		WithArgs(start, end).
@@ -36,11 +36,11 @@ func TestGetScoresByTicket(t *testing.T) {
 	assert.Len(t, result, 2)
 
 	assert.Equal(t, 1, result[0].TicketID)
-	assert.Equal(t, "UX", result[0].CategoryName)
+	assert.Equal(t, "Grammer", result[0].CategoryName)
 	assert.InDelta(t, 80.0, result[0].Score, 0.01)
 
 	assert.Equal(t, 2, result[1].TicketID)
-	assert.Equal(t, "Performance", result[1].CategoryName)
+	assert.Equal(t, "GDPR", result[1].CategoryName)
 	assert.InDelta(t, 50.0, result[1].Score, 0.01)
 
 	assert.NoError(t, mock.ExpectationsWereMet())

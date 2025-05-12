@@ -33,7 +33,6 @@ func startTestGRPCServer(t *testing.T, db *sql.DB) (pb.ScoringServiceClient, fun
 		}
 	}()
 
-	// Dial the server
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
 	require.NoError(t, err)
 

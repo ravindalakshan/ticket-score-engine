@@ -17,7 +17,7 @@ func TestGetCategoryScores(t *testing.T) {
 	defer db.Close()
 
 	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
-	end := time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC) // Less than 30 days = daily
+	end := time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC) // Less than 30 days => daily
 
 	rows := sqlmock.NewRows([]string{
 		"category", "period", "count", "weighted_score", "total_weight",
